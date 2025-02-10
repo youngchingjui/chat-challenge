@@ -3,7 +3,6 @@ import time
 import random
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-# Hardcoded dictionary to hold terms and responses
 response_dict = {
     "flashing red light": (
         "<p>If you notice a flashing red light on your device, it is important to take immediate action to address the issue.</p>"
