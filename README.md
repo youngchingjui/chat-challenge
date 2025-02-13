@@ -54,7 +54,12 @@ Notice that all the services have extremely simple single-phrase interactions. T
 
 ## Streaming, service differences, and a buggy third-party service
 
-The services can be (intentionally for the challenge) slow at processing. To give users faster results, responses are streamed for two of the services. It is important to start giving them that data as soon as possible, but only print complete chunks/paragraphs.
+The services can be (intentionally for the challenge) slow at processing. Two of the services (product_info_bot.py and cheap_gpt.py) stream their responses, while real_agent.py returns its response all at once. For the streaming services:
+
+- Responses come in chunks
+- Each chunk may contain partial <p> tags
+- The program should only display complete paragraphs (text between <p> tags)
+- Display each complete paragraph as soon as it's received
 
 ## Some technical details to help
 
@@ -73,3 +78,31 @@ python3 real_agent.py # Runs on port 8083 and url of http://localhost:8083/
   - The design of the code should bring simplicity to the problem
 - Idiomatic language usage is ideal. If you are new to Python, work with what you know and we'll talk about the difference when we meet.
 - Code this as you would if it were real code you expected to put into production
+
+## Getting Started
+
+Before running the chatbot:
+1. Start all three services in separate terminal windows:
+   ```shell
+   python3 cheap_gpt.py
+   python3 product_info_bot.py
+   python3 real_agent.py
+   ```
+2. In a new terminal window, run the chatbot:
+   ```shell
+   python3 main.py
+   ```
+
+## Success Criteria
+
+A successful solution should:
+1. Handle all three types of requests (product info, technical support, real person)
+2. Properly stream responses where applicable
+3. Include unit tests
+4. Use clean, production-quality code organization
+5. Follow Python best practices and idioms
+
+## Submitting your solution
+
+1. Zip up your solution as a zip file containing the entire project directory.
+2. Email the zip file as an attachment in reply to the email your received from us with the instructions.

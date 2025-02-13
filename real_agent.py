@@ -37,13 +37,9 @@ class RealAgentSimulator(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(response_string.encode('utf-8'))
 
 
-# Set the port number
-PORT = 8081
-
-# Create an object of the request handler
+PORT = 8083
 handler = RealAgentSimulator
 
-# Create the server
 with socketserver.TCPServer(("", PORT), handler) as httpd:
     print(f"Serving on port {PORT}")
     httpd.serve_forever()
