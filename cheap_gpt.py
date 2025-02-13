@@ -36,7 +36,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         while True:
             try:
                 self.wfile.write(b'0' * chunk_size)
-                time.sleep(0.1)  # Small delay to prevent overwhelming the connection
+                time.sleep(0.1)
             except (BrokenPipeError, ConnectionResetError):
                 break
 
@@ -64,7 +64,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             if i == switch_at_chunk:
                 # Switch to infinite zeroes
                 self.stream_infinite_zeroes()
-                return  # This will never be reached due to infinite loop
+                return
 
             # Stream normal chunk
             start_index = i * chunk_size

@@ -12,7 +12,7 @@ def main():
         user_input = input("> ")
 
         # TODO: Call the correct service, send user inputs to it, and print outputs to the console.
-        #  Only print complete chunks/paragraphs.
+        #  Only print complete chunks/paragraphs. For example, if a chunk is "<p>If you notice a fla", do not print it yet, wait until that chunk is complete before printing it.
 
         # Special note: We've been having trouble with "CheapGPT" lately and sometimes it gets stuck sending infinite zeroes. If that happens, retry the request.
 

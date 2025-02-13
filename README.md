@@ -6,9 +6,9 @@ The "chat challenge" is to create a basic terminal-based chatbot by integrating 
 
 A solution to perform basic customer support needs.
 
-A user should be able to run the program via main.py and interact with it in the command line. Input from the user should be typed there and submitted to the program when they press enter.
+A user should be able to run the program via main.py and interact with it in the command line with something like `$ python3 main.py`. Input from the user should be typed there and submitted to the program when they press enter. 
 
-Users should be able to interact with the program in 3 main ways:
+Users should be able to get 3 main kinds of help from the program:
 
 1. Get product information
 2. Technical support for a problem on the product they bought
@@ -19,6 +19,7 @@ For two of the services results are streamed back to the client. In these cases 
 ## Example interactions
 
 Product questions: If the user text has the words "product question" in it, you should take that to mean it is a request for product information. See which known-product they are asking about and give the response. Here's how that interaction should look: 
+
 ```shell
 > I have a product question about Antigravity Socks
 
@@ -29,6 +30,7 @@ Product questions: If the user text has the words "product question" in it, you 
 
 
 Technical support: If the user text has the words "help" in it, you should take that to mean it is a request for technical support. See which known-issue they are asking about and give the response. Here's how that interaction should look: 
+
 ```shell
 > I need help with my product. It has a flashing red light. What should I do?
 
@@ -52,13 +54,17 @@ Notice that all the services have extremely simple single-phrase interactions. T
 
 ## Streaming, service differences, and a buggy third-party service
 
-The services can be (intentionally for the challenge) slow at processing. To give users faster results, responses are streamed for two of the services. It is important 
+The services can be (intentionally for the challenge) slow at processing. To give users faster results, responses are streamed for two of the services. It is important to start giving them that data as soon as possible, but only print complete chunks/paragraphs.
 
 ## Some technical details to help
 
-The three big functions for the program are done using simulated services. These can be found in `cheap_gpt.py`, `product_info_bot.py`, and `real_agent.py`. Each of those files are extremely basic programs meant to simulate services to carry out the different types of interactions. Treat these programs/services as if they were third-party services. The code is only here to make challenge setup easier to see as a whole. No changes should be made to these.
+The three big functions for the program are done using simulated services. These can be found in `cheap_gpt.py`, `product_info_bot.py`, and `real_agent.py`. Each of those files are extremely basic programs meant to simulate services to carry out the different types of interactions. Treat these programs/services as if they were third-party external services. The code is only here to make challenge setup easier to see as a whole. No changes should be made to these. Each service can be run like this:
 
-The solution should integrate with each of the services.
+```
+python3 cheap_gpt.py # Runs on port 8081 and url of http://localhost:8081/
+python3 product_info_bot.py # Runs on port 8082 and url of http://localhost:8082/
+python3 real_agent.py # Runs on port 8083 and url of http://localhost:8083/
+```
 
 ## Important concepts
 
