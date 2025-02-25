@@ -40,36 +40,42 @@ def call_product_info_bot(user_input):
         print(f"Error contacting product info bot: {e}")
 
 
-def call_cheap_gpt(user_input, retry_count=0, max_retries=5):
+def call_cheap_gpt(user_input, retry_count=0, max_retries=20, start_line=0):
+    chunk_increment = 10
+    lines_printed_counter = 0
     if retry_count >= max_retries:
         print("Max retries reached. Exiting.")
         return
-    print("at top of call_cheap_gpt")
     try:
-        is_paragraph = False
+        is_paragraph = False  # Used if response has no <p> tags
         conn = http.client.HTTPConnection("localhost", 8081)
         headers = {"Content-type": "application/json"}
         conn.request("POST", "/", user_input, headers)
         response = conn.getresponse()
         buffer = ""
         while True:
-            chunk = response.read(10)
-            print("chunk: ", chunk)
+            chunk = response.read(chunk_increment)
             if not chunk:
-                break
+                break  # End of stream or response
             buffer += chunk.decode()
             # Check for consecutive zeros
             if buffer.endswith("0" * 10):
                 response.close()
                 conn.close()
-                print("calling call_cheap_gpt again")
-                call_cheap_gpt(user_input, retry_count + 1)
+                call_cheap_gpt(
+                    user_input,
+                    retry_count + 1,
+                    max_retries,
+                    start_line=max(lines_printed_counter, start_line),
+                )
                 return
             while "<p>" in buffer and "</p>" in buffer:
                 start = buffer.index("<p>")
                 end = buffer.index("</p>") + 4
-                print(buffer[start:end])
+                if lines_printed_counter >= start_line:
+                    print(buffer[start:end])
                 buffer = buffer[end:]
+                lines_printed_counter += 1
                 is_paragraph = True
         if not is_paragraph:
             # Prints output if there were no <p> tags found
