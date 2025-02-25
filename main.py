@@ -3,19 +3,13 @@ import json
 from typing import Any
 
 # Constants for configuration
-REAL_AGENT_HOST = "localhost"
-REAL_AGENT_PORT = 8083
-PRODUCT_INFO_BOT_HOST = "localhost"
-PRODUCT_INFO_BOT_PORT = 8082
-CHEAP_GPT_HOST = "localhost"
-CHEAP_GPT_PORT = 8081
 CHUNK_SIZE = 10
 MAX_RETRIES = 20
 
 
 def call_real_agent(user_input: str) -> None:
     """Call the real agent service."""
-    conn = http.client.HTTPConnection(REAL_AGENT_HOST, REAL_AGENT_PORT)
+    conn = http.client.HTTPConnection("localhost", 8083)
     try:
         conn.request("GET", "/")
         response = conn.getresponse()
@@ -26,43 +20,20 @@ def call_real_agent(user_input: str) -> None:
         conn.close()
 
 
-def call_product_info_bot(user_input: str) -> None:
-    """Call the product info bot service."""
-    conn = http.client.HTTPConnection(PRODUCT_INFO_BOT_HOST, PRODUCT_INFO_BOT_PORT)
-    try:
-        headers = {"Content-type": "application/json"}
-        conn.request("POST", "/", user_input, headers)
-        response = conn.getresponse()
-        buffer = ""
-        while True:
-            chunk = response.read(CHUNK_SIZE)
-            if not chunk:
-                break
-            buffer += chunk.decode()
-            while "<p>" in buffer and "</p>" in buffer:
-                start = buffer.index("<p>")
-                end = buffer.index("</p>") + 4
-                print(buffer[start:end])
-                buffer = buffer[end:]
-    except Exception as e:
-        print(f"Error contacting product info bot: {e}")
-    finally:
-        conn.close()
-
-
-def call_cheap_gpt(
+def call_streaming_server(
     user_input: str,
+    port: int,
     retry_count: int = 0,
     max_retries: int = MAX_RETRIES,
     start_line: int = 0,
 ) -> None:
-    """Call the CheapGPT service with retry logic."""
+    """Call streaming service with retry logic."""
     if retry_count >= max_retries:
         print("Max retries reached. Exiting.")
         return
-    conn = http.client.HTTPConnection(CHEAP_GPT_HOST, CHEAP_GPT_PORT)
+    conn = http.client.HTTPConnection("localhost", port)
     try:
-        is_paragraph = False
+        is_paragraph = False  # Print buffer if there were no <p> tags
         headers = {"Content-type": "application/json"}
         conn.request("POST", "/", user_input, headers)
         response = conn.getresponse()
@@ -73,11 +44,12 @@ def call_cheap_gpt(
             if not chunk:
                 break  # End of stream or response
             buffer += chunk.decode()
-            if buffer.endswith("0" * 10):
+            if buffer.endswith("0" * 10):  # Assume consecutive 10 x 0's means stuck
                 response.close()
                 conn.close()
-                call_cheap_gpt(
+                call_streaming_server(
                     user_input,
+                    port,
                     retry_count + 1,
                     max_retries,
                     start_line=max(lines_printed_counter, start_line),
@@ -104,14 +76,22 @@ def call_cheap_gpt(
 
 
 def process_input(user_input: str) -> None:
+    # real_agent uses simple GET request with `text/plain` response,
+    # so we just separate it into its own function
     if "real person" in user_input.lower():
         call_real_agent(user_input)
-    elif "product question" in user_input.lower():
-        call_product_info_bot(user_input)
+        return
+
+    port: int
+    if "product question" in user_input.lower():
+        port = 8082
     elif "help" in user_input.lower():
-        call_cheap_gpt(user_input)
+        port = 8081
     else:
         print(f"You entered: {user_input}")
+        return
+
+    call_streaming_server(user_input, port=port)
 
 
 def main():
