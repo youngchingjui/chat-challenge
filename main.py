@@ -1,12 +1,26 @@
+import http.client
+
+
 def process_input(user_input):
     # This function processes the user input.
-    # You can modify this function to perform any action you want.
-    print(f"You entered: {user_input}")
+    if "real person" in user_input.lower():
+        try:
+            conn = http.client.HTTPConnection("localhost", 8083)
+            conn.request("GET", "/")
+            response = conn.getresponse()
+            print(response.read().decode())
+            conn.close()
+        except Exception as e:
+            print(f"Error contacting real agent: {e}")
+    else:
+        print(f"You entered: {user_input}")
 
 
 def main():
     print("Welcome to the automated support system!")
-    print("I can help you with general information or order lookups. Type 'exit' to quit.")
+    print(
+        "I can help you with general information or order lookups. Type 'exit' to quit."
+    )
 
     while True:
         user_input = input("> ")
@@ -16,7 +30,7 @@ def main():
 
         # Special note: We've been having trouble with "CheapGPT" lately and sometimes it gets stuck sending infinite zeroes. If that happens, retry the request.
 
-        if user_input.lower() == 'exit':
+        if user_input.lower() == "exit":
             print("Exiting the program. Goodbye!")
             break
         process_input(user_input)

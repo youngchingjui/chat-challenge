@@ -22,7 +22,7 @@ random_strings = [
     "Quality assurance is the path to customer delight.",
     "Correctness in service builds a strong reputation.",
     "Happy customers are those who receive accurate solutions.",
-    "In the end, quality is what keeps customers coming back."
+    "In the end, quality is what keeps customers coming back.",
 ]
 
 
@@ -31,10 +31,10 @@ class RealAgentSimulator(http.server.SimpleHTTPRequestHandler):
         response_string = random.choice(random_strings)
         self.send_response(200)
 
-        self.send_header('Content-type', 'text/plain')
+        self.send_header("Content-type", "text/plain")
         self.end_headers()
 
-        self.wfile.write(response_string.encode('utf-8'))
+        self.wfile.write(response_string.encode("utf-8"))
 
 
 PORT = 8083
