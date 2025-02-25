@@ -2,7 +2,6 @@ import http.client
 
 
 def process_input(user_input):
-    # This function processes the user input.
     if "real person" in user_input.lower():
         try:
             conn = http.client.HTTPConnection("localhost", 8083)
@@ -12,6 +11,33 @@ def process_input(user_input):
             conn.close()
         except Exception as e:
             print(f"Error contacting real agent: {e}")
+    elif "product question" in user_input.lower():
+        try:
+            conn = http.client.HTTPConnection("localhost", 8082)
+            headers = {"Content-type": "application/json"}
+            conn.request("POST", "/", user_input, headers)
+            response = conn.getresponse()
+            buffer = ""
+            while True:
+                chunk = response.read(
+                    10
+                )  # Match the 10 character chunks in product_info_bot.py
+                if not chunk:
+                    break
+                buffer += chunk.decode()
+                # Print when a complete <p> tag is found
+                while "<p>" in buffer and "</p>" in buffer:
+                    start = buffer.index("<p>")
+                    end = buffer.index("</p>") + 4
+                    print(
+                        buffer[start + 3 : end - 4]
+                    )  # +3 / -4 to remove the <p> / </p> tags
+                    buffer = buffer[
+                        end:
+                    ]  # Reset buffer to the remaining text after the </p> tag
+            conn.close()
+        except Exception as e:
+            print(f"Error contacting product info bot: {e}")
     else:
         print(f"You entered: {user_input}")
 
