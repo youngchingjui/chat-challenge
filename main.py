@@ -31,9 +31,7 @@ def call_product_info_bot(user_input):
             while "<p>" in buffer and "</p>" in buffer:
                 start = buffer.index("<p>")
                 end = buffer.index("</p>") + 4
-                print(
-                    buffer[start + 3 : end - 4]
-                )  # +3 / -4 to remove the <p> / </p> tags
+                print(buffer[start:end])
                 buffer = buffer[
                     end:
                 ]  # Reset buffer to the remaining text after the </p> tag
@@ -42,7 +40,11 @@ def call_product_info_bot(user_input):
         print(f"Error contacting product info bot: {e}")
 
 
-def call_cheap_gpt(user_input):
+def call_cheap_gpt(user_input, retry_count=0, max_retries=5):
+    if retry_count >= max_retries:
+        print("Max retries reached. Exiting.")
+        return
+    print("at top of call_cheap_gpt")
     try:
         is_paragraph = False
         conn = http.client.HTTPConnection("localhost", 8081)
@@ -52,13 +54,21 @@ def call_cheap_gpt(user_input):
         buffer = ""
         while True:
             chunk = response.read(10)
+            print("chunk: ", chunk)
             if not chunk:
                 break
             buffer += chunk.decode()
+            # Check for consecutive zeros
+            if buffer.endswith("0" * 10):
+                response.close()
+                conn.close()
+                print("calling call_cheap_gpt again")
+                call_cheap_gpt(user_input, retry_count + 1)
+                return
             while "<p>" in buffer and "</p>" in buffer:
                 start = buffer.index("<p>")
                 end = buffer.index("</p>") + 4
-                print(buffer[start + 3 : end - 4])
+                print(buffer[start:end])
                 buffer = buffer[end:]
                 is_paragraph = True
         if not is_paragraph:
